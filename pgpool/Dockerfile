@@ -24,7 +24,7 @@ RUN set -ex \
        linux-headers \
        make
 
-COPY pgpool/fix_compile_alpine38.patch /
+COPY fix_compile_alpine38.patch /
 
 RUN set -ex \
     \
@@ -39,27 +39,21 @@ RUN set -ex \
     && rm /*.patch \
     && rm -rf /usr/src/pgpool-II
 
+RUN mkdir -p /var/run/pgpool && chown -R postgres:postgres /var/run/pgpool && chmod 2777 /var/run/pgpool
 
-FROM golang
-WORKDIR /go/src/github.com/sysbind/pgtrunk
-COPY . .
-RUN go get -d -v golang.org/x/sys/unix github.com/spf13/cobra/cobra
-RUN CGO_ENABLED=0 GOOS=linux go build -a .
+COPY pgpool.conf /usr/local/etc/pgpool.conf
+COPY pcp.conf /usr/local/etc/pcp.conf
+COPY dot_pcppass /root/.pcppass
+RUN chmod 0600  /root/.pcppass
 
-# Final image, official postgres + pgpool's pcp_* binaries and libs + pgtrunk executable
-FROM postgres:11-alpine
+ENTRYPOINT ["docker-entrypoint.sh"]
 
-COPY --from=0 /usr/local/bin/pcp_* /usr/local/bin/
-COPY --from=0 /usr/local/lib/libpcp.so.1.0.0 /usr/local/lib/
-RUN ln -s /usr/local/lib/libpcp.so.1.0.0 //usr/local/lib/libpcp.so.1 \
-    && ln -s /usr/local/lib/libpcp.so.1.0.0 /usr/local/lib/libpcp.so
+EXPOSE 5432
+# heartbeat
+EXPOSE 9694
+# pcp
+EXPOSE 9898
+# watchdog
+EXPOSE 9000
 
-COPY --from=1 /go/src/github.com/sysbind/pgtrunk/pgtrunk /usr/local/bin/
-
-COPY docker-entrypoint-pgtrunk.sh /usr/local/bin/
-
-RUN echo "executable: /usr/local/bin/docker-entrypoint.sh" > /root/.pgtrunk.yaml
-
-ENTRYPOINT ["docker-entrypoint-pgtrunk.sh"]
-
-CMD ["postgres"]
+CMD ["pgpool","-n"]
