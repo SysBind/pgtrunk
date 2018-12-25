@@ -1,6 +1,6 @@
 # Pgtrunk
-
-## A Postgres / Pgpool-II cluster wire-up
+![pgtrunk logo](https://raw.githubusercontent.com/SysBind/pgtrunk/master/logo.png)
+Pgtrunk is A Postgres / Pgpool-II cluster wire-up.
 
 Cloud friendly postgres cluster to acheive HA and Load Balancing (Read-Only)
 Using streaming replication and Pgpool 2.
