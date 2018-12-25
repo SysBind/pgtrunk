@@ -33,10 +33,11 @@ var rootCmd = &cobra.Command{
 	Short: "A Postgres / Pgpool-II cluster wire-up",
 	Long: `A Postgres / Pgpool-II cluster wire-up,`,
 	Run: func(cmd *cobra.Command, args []string) {
-		executable := viper.GetString("executable");
-		fmt.Println("executable is ", executable)
+		executable := viper.GetString("executable")
+		datadir := viper.GetString("datadir")
 		// use exec to completly replace the current process with postgres:
-		argv := append([]string{path.Base(executable)}, args...)		
+		argv := append([]string{path.Base(executable)}, "-D", datadir)
+		argv = append(argv, args...)
 		err := unix.Exec(executable, argv, os.Environ())
 		log.Fatal(err)	
 	},
@@ -57,7 +58,9 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pgtrunk.yaml)")
 
 	rootCmd.Flags().String("executable", "/usr/bin/postgres" ,"executable or script for launching postgres")
+	rootCmd.Flags().StringP("datadir", "D", "/var/lib/postgres/data", "data directory")
 	viper.BindPFlag("executable", rootCmd.Flags().Lookup("executable"))
+	viper.BindPFlag("datadir", rootCmd.Flags().Lookup("datadir"))
 }
 
 // initConfig reads in config file and ENV variables if set.
