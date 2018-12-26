@@ -17,19 +17,20 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/sysbind/pgtrunk/pkg/pgpool"
 )
 
-// startCmd represents the start command
-var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "Starts a postgres server",
-	Long: `Consults pgpool (using pcp commands) for initial role before launching postgres
-possibly synchronizing data before that. (e.g: from backup, from master)`,
+// getCmd represents the get command
+var getCmd = &cobra.Command {
+	Use:   "get",
+	Short: "Gets a postgres master",
+	Long: `Consults pgpool (using pcp commands) for the master`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("start command is empty")
+		primary := pgpool.GetPrimaryNode()
+		fmt.Println("Primary: ", primary.Host, primary.Port)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(startCmd)
+	rootCmd.AddCommand(getCmd)
 }
