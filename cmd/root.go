@@ -19,10 +19,12 @@ import (
 	"os"
 	"log"	
 	"path"
+	"strconv"
 	"golang.org/x/sys/unix"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sysbind/pgtrunk/pkg/pgpool"
 )
 
 var cfgFile string
@@ -35,8 +37,29 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		executable := viper.GetString("executable")
 		datadir := viper.GetString("datadir")
+		host := viper.GetString("hostname")
+		port := viper.GetInt("port")
+		initdb := viper.GetBool("initdb")
+
+		primary := pgpool.GetPrimaryNode()
+
+		if primary.Port == port && primary.Host == host {			
+			fmt.Println("primary is me")
+			if (initdb) {
+				pgpool.InitDB(datadir)
+			}
+		} else {
+			fmt.Println("synching from primary")
+			pgpool.Sync(primary, datadir)
+		}
+
+		fmt.Println("all done, launching ", executable)
+		argv := append([]string{path.Base(executable)},
+			"-D", datadir,
+			"-p", strconv.Itoa(port),
+			"-h", host)
+
 		// use exec to completly replace the current process with postgres:
-		argv := append([]string{path.Base(executable)}, "-D", datadir)
 		argv = append(argv, args...)
 		err := unix.Exec(executable, argv, os.Environ())
 		log.Fatal(err)	
@@ -58,9 +81,15 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.pgtrunk.yaml)")
 
 	rootCmd.Flags().String("executable", "/usr/bin/postgres" ,"executable or script for launching postgres")
-	rootCmd.Flags().StringP("datadir", "D", "/var/lib/postgres/data", "data directory")
+	rootCmd.Flags().StringP("datadir", "D", "/var/lib/postgres/data", "data directory, passed on to postgres")
+	rootCmd.Flags().IntP("port", "p", 5432, "port as refferd to by pgpool")
+	rootCmd.Flags().StringP("hostname", "H", "localhost", "hostname as reffered to by pgpool")
+	rootCmd.Flags().Bool("initdb", false, "run initdb if datadir empty")
 	viper.BindPFlag("executable", rootCmd.Flags().Lookup("executable"))
 	viper.BindPFlag("datadir", rootCmd.Flags().Lookup("datadir"))
+	viper.BindPFlag("port", rootCmd.Flags().Lookup("port"))
+	viper.BindPFlag("hostname", rootCmd.Flags().Lookup("hostname"))
+	viper.BindPFlag("initdb", rootCmd.Flags().Lookup("initdb"))
 }
 
 // initConfig reads in config file and ENV variables if set.

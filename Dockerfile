@@ -58,8 +58,6 @@ COPY --from=1 /go/src/github.com/sysbind/pgtrunk/pgtrunk /usr/local/bin/
 
 COPY docker-entrypoint-pgtrunk.sh /usr/local/bin/
 
-RUN echo "executable: /usr/local/bin/docker-entrypoint.sh" > /root/.pgtrunk.yaml
-
 ENTRYPOINT ["docker-entrypoint-pgtrunk.sh"]
 
 CMD ["postgres"]

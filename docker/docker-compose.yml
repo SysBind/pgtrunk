@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+  postgres-1:
+    image: pgtrunk
+    build:
+      context: ..
+    environment:
+      - POSTGRES_PASSWORD=Password1
+  postgres-2:
+    image: pgtrunk
+    environment:
+      - POSTGRES_PASSWORD=Password1
+  postgres-3:
+    image: pgtrunk
+    environment:
+      - POSTGRES_PASSWORD=Password1
+  pgpool:
+    image: pgpool
+    build:
+      context: ../pgpool
+    command: ['pgpool','-n','-d']
+    
