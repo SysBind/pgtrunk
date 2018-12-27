@@ -7,11 +7,11 @@ import (
 	"fmt"
 )
 
-func GetPrimaryNode() Node {
+func GetPrimaryNode(conn *PCPConn) Node {
 	var node Node
-	nodeCount := pcpNodeCount()
+	nodeCount := conn.pcpNodeCount()
 	for i := 0; i < nodeCount; i++ {
-		node = pcpNodeInfo(i)
+		node = conn.pcpNodeInfo(i)
 		if node.Role == "primary" { return node	}
 	}
 	return Node{}

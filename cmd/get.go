@@ -26,7 +26,8 @@ var getCmd = &cobra.Command {
 	Short: "Gets a postgres master",
 	Long: `Consults pgpool (using pcp commands) for the master`,
 	Run: func(cmd *cobra.Command, args []string) {
-		primary := pgpool.GetPrimaryNode()
+		pcp := pgpool.PCPConnection("127.0.0.1", 9898, "root", "Password1")
+		primary := pgpool.GetPrimaryNode(pcp)
 		fmt.Println("Primary: ", primary.Host, primary.Port)
 	},
 }

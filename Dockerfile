@@ -41,9 +41,9 @@ RUN set -ex \
 
 
 FROM golang
+RUN go get -d -v golang.org/x/sys/unix github.com/spf13/cobra/cobra
 WORKDIR /go/src/github.com/sysbind/pgtrunk
 COPY . .
-RUN go get -d -v golang.org/x/sys/unix github.com/spf13/cobra/cobra
 RUN CGO_ENABLED=0 GOOS=linux go build -a .
 
 # Final image, official postgres + pgpool's pcp_* binaries and libs + pgtrunk executable

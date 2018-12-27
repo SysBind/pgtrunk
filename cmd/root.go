@@ -41,7 +41,8 @@ var rootCmd = &cobra.Command{
 		port := viper.GetInt("port")
 		initdb := viper.GetBool("initdb")
 
-		primary := pgpool.GetPrimaryNode()
+		pcp := pgpool.PCPConnection("127.0.0.1", 9898, "root", "Password1")
+		primary := pgpool.GetPrimaryNode(pcp)
 
 		if primary.Port == port && primary.Host == host {			
 			fmt.Println("primary is me")
