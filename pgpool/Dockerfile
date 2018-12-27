@@ -34,7 +34,7 @@ RUN set -ex \
     && make \
     && make install \
     && make -C src/sql/pgpool-recovery \
-    && make -C src/sql/pgpool-recovery  install \
+    && make -C src/sql/pgpool-recovery install \
     && apk del .fetch-deps .build-deps \
     && rm /*.patch \
     && rm -rf /usr/src/pgpool-II
@@ -45,6 +45,8 @@ COPY pgpool.conf /usr/local/etc/pgpool.conf
 COPY pcp.conf /usr/local/etc/pcp.conf
 COPY dot_pcppass /root/.pcppass
 RUN chmod 0600  /root/.pcppass
+
+COPY postgre-failover.sh /usr/local/bin/postgre-failover.sh
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 

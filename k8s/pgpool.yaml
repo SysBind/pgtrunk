@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pgpool
+spec:
+  replicas: 1
+  serviceName: pgpool
+  selector:
+    matchLabels:
+      app: pgpool
+  template:
+    metadata:
+      labels:
+        app: pgpool
+    spec:
+      containers:
+      - name: pgpool
+        image: sysbind/pgpool
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5432
+          name: pgsql            
+        volumeMounts:
+        - name: pgpool-conf
+          mountPath: /usr/local/etc
+      volumes:
+        - name: pgpool-conf
+          configMap:
+            name: pgpool-config

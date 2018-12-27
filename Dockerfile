@@ -58,6 +58,6 @@ COPY --from=1 /go/src/github.com/sysbind/pgtrunk/pgtrunk /usr/local/bin/
 
 COPY docker-entrypoint-pgtrunk.sh /usr/local/bin/
 
-ENTRYPOINT ["docker-entrypoint-pgtrunk.sh"]
+#ENTRYPOINT ["docker-entrypoint-pgtrunk.sh"]
 
-CMD ["postgres"]
+#CMD ["postgres"]

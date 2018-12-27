@@ -47,7 +47,7 @@ spec:
             mountPath: /var/lib/postgresql/data
       containers:
       - name: pgsql
-        image: postgres:11-alpine
+        image: sysbind/postgres
         ports:
           - containerPort: 5432
             name: pgsql
